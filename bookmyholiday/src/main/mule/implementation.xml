@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="364bec3e-7079-4ac1-be8a-d896f31fa817" >
+		<http:request-connection protocol="HTTPS" host="anypoint.mulesoft.com"/>
+	</http:request-config>
+	<flow name="getPlace" doc:id="33bc3ff9-4c60-4057-90bd-41508b1d3ccb" >
+		<flow-ref doc:name="Flow Reference" doc:id="077c7f9b-fdcd-4b7c-b72a-c9a6af3ecc51" name="QueryFlow"/>
+		<http:request method="GET" doc:name="Request" doc:id="38bb6e51-b2e6-4008-8560-0ab2a6890009" path="/mocking/api/v1/links/80c75173-457f-4299-90cd-f2611e3bc69a/places" config-ref="HTTP_Request_configuration1">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"state" : vars.places.state,
+	"country" : vars.places.country,
+	"city" : vars.places.city
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="9a744b66-d296-4274-9bcb-4615215a44f5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="PlaceLogger" doc:id="e93a3c90-cfd1-4f65-bd4d-bc136860c993" message="Successfully fetch place data"/>
+	</flow>
+	<flow name="implementationFlow" doc:id="bf086612-e232-412f-b23d-22f6ec5c435a" >
+		<ee:transform doc:name="Transform Message" doc:id="c5225082-e703-47d7-ab6e-64b84a16b97e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="#[payload.email]" doc:name="emailSet" doc:id="2ea78742-df0e-411c-841d-5bd21dacee29" variableName="Email"/>
+		<http:request method="POST" doc:name="postrequest" doc:id="7f9ed88f-9781-4072-88a6-4f3b22566f20" path="/mocking/api/v1/links/a7231f35-26b1-426c-8883-e52542a9bc7a/hotels" config-ref="HTTP_Request_configuration1"/>
+		<logger level="INFO" doc:name="Logger" doc:id="416eaf03-01f8-401c-8ecf-b6adeeee5b70" message="exicuted"/>
+		<try doc:name="Try" doc:id="b4a935ac-297d-4e6c-89c0-e47b95f36453" >
+			<validation:is-true doc:name="Validate if booking successful" doc:id="d5f82d6c-2906-485e-bbd0-6e5b1248bc2b" expression='#[payload.message =="success"]'/>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="7ae8a23a-9857-43f6-a5b9-570bf4d8cbb5" >
+					<ee:transform doc:name="Transform Message" doc:id="ffdd882f-e8d0-4115-bffd-95dfe1c6915b" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Message": "Un-Successful"
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="Transform Message" doc:id="81528e74-9c3b-4e00-8d0e-4d6a861ca74d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload ++ "BookingTime": now()]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<email:send doc:name="Send" doc:id="70154434-613a-4b57-acc3-bb5bbf1348f1" fromAddress="aman.o.srivastava@apisero.com" subject="booking details" config-ref="Email_SMTP1">
+			<email:to-addresses >
+				<email:to-address value="#[vars.Email]" />
+			</email:to-addresses>
+			<email:body contentTransferEncoding="Quoted-Printable" contentType="test/plain" encoding="UTF-8"/>
+		</email:send>
+	</flow>
+	<flow name="GetHotel" doc:id="7ee8356b-8b58-4766-b8f2-60077a1f6b5b" >
+		<flow-ref doc:name="Flow Reference" doc:id="a8bc4ad2-db51-49ee-af2b-3517a8a15074" name="QueryFlow"/>
+		<http:request method="GET" doc:name="Request" doc:id="10786293-f283-4b8c-a57e-92e26d8f0604" path="/mocking/api/v1/links/b120020a-7fe8-4867-9146-49d344cdafd5/hotels" config-ref="HTTP_Request_configuration">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"state" : vars.places.state,
+	"country" : vars.places.country,
+	"city" : vars.places.city
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="c63ee17e-6761-4ad8-a7de-06843d9a4e10" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="HotelLogger" doc:id="52f2ab43-f293-4db3-906e-6bf973614164" message="Successfully Fetch Hotel data"/>
+	</flow>
+	<flow name="getRentalCar" doc:id="b60603ac-e717-4939-9801-4a713243e856" >
+		<flow-ref doc:name="Flow Reference" doc:id="2f806b1a-6a3d-4a1d-a21d-a9a1bfbfe698" name="QueryFlow"/>
+		<http:request method="GET" doc:name="Request" doc:id="e7b11e90-1e1e-46d7-a4b6-198764153e75" path="/mocking/api/v1/links/3bd5e72d-c796-4398-a199-ceacc73a879c/rentalcar" config-ref="HTTP_Request_configuration1">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"state" : vars.places.state,
+	"country" : vars.places.country,
+	"city" : vars.places.city
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="fd17e914-2ab6-4477-8ffe-ffde44c0801a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="RentalCarLogger" doc:id="1af89383-a695-48a3-ac38-ae4f20e7d5f6" message="Succesfully fetch car data"/>
+	</flow>
+	<flow name="getFlight" doc:id="de9af286-0182-411a-abbd-38feeaa92732" >
+		<flow-ref doc:name="Flow Reference" doc:id="372265ab-ab01-422a-91c5-c0c254284e50" name="QueryFlow"/>
+		<http:request method="GET" doc:name="Request" doc:id="b30189b5-f621-42e1-afb7-cbbe92d2d551" path="/mocking/api/v1/links/ecdb3ee4-6e26-4e9c-b864-1c13deb3d785/flight" config-ref="HTTP_Request_configuration1">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"source" : vars.places.Source,
+	"destination" : vars.places.destination
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="929a479b-6bbe-4baa-890c-f5ca43b47fe8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="flightlogger" doc:id="c9dcb549-1c42-4b59-8dd8-2aca0b8cf502" message="successfully Flight data get"/>
+	</flow>
+	<flow name="QueryFlow" doc:id="500fc269-34bc-47ef-a68e-6df16e9d458a" >
+		<set-variable value="#[attributes.queryParams]" doc:name="placesqueryparameter" doc:id="d462f4b0-1d56-464e-a5ee-3e199c07d230" variableName="places"/>
+	</flow>
+</mule>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="implementation-test-suite.xml" />
+	<munit:test name="implementation-test-suite-GetHotelTest" doc:id="272d3c7b-dabc-4eb1-a1a1-0429363a56ef" description="Test">
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to GetHotel" doc:id="c356b1ea-d3cb-4111-952b-5b604fe799ad" name="GetHotel"/>
+		</munit:execution>
+	</munit:test>
+	<munit:test name="implementation-test-suite-getFlightTest" doc:id="d366454b-b322-4b2f-8479-49911c8e3833" description="Test">
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to getFlight" doc:id="4916ef8d-9ff9-4455-8193-134d74d5e577" name="getFlight"/>
+		</munit:execution>
+	</munit:test>
+
+
+</mule>

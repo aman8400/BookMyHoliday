@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_b60603ac_e717_4939_9801_4a713243e856_Output_Variables_places = Any
+

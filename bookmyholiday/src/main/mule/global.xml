@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="cf012712-74ac-4ced-b1d8-0942836574bb" >
+		<http:listener-connection host="0.0.0.0" port="${http.port}" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="1d0b2b84-94cb-4b22-b457-40908560802b" >
+		<http:request-connection host="${anypoint.url}" />
+	</http:request-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="1bbb9c01-a47b-4d63-8253-2e3ffc9f5ea3" file="config.yaml" />
+	<email:smtp-config name="Email_SMTP1" doc:name="Email SMTP" doc:id="163f8bba-f6c7-4518-a399-6a2f365eb547" >
+		<email:smtp-connection host="${email.host}" port="${email.port}" user="${email.user}" password="${email.password}" />
+	</email:smtp-config>
+	<api-gateway:autodiscovery apiId="17463485" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="339132bf-05b6-4276-8782-dfa8f6e18bc3" flowRef="post:\hotels:application\json:bookmyholiday-config" />
+</mule>

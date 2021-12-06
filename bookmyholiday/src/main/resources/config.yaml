@@ -1,0 +1,11 @@
+http:
+  port: "8081"
+  
+anypoint:
+  url: "anypoint.mulesoft.com"
+  
+email:
+  host: "smtp.gmail.com"
+  port: "587"
+  user: "aman.o.srivastava@apisero.com"
+  password: "Aman@8400"
